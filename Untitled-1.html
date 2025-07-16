@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>杭州宋城门票套餐规划工具</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#E63946',
+            secondary: '#1D3557',
+            accent: '#457B9D',
+            light: '#F1FAEE',
+            dark: '#1D3557',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-shadow {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .btn-hover {
+        transition: all 0.3s ease;
+      }
+      .btn-hover:hover {
+        transform: translateY(-2px);
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="min-h-screen flex flex-col">
+    <!-- 顶部导航 -->
+    <header class="bg-primary text-white shadow-md">
+      <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <i class="fa fa-ticket text-2xl"></i>
+          <h1 class="text-xl md:text-2xl font-bold">杭州宋城售票员张姐姐套餐规划</h1>
+        </div>
+        <div class="hidden md:flex items-center space-x-6">
+          <a href="#" class="hover:text-light transition-colors duration-300">首页</a>
+          <a href="#" class="hover:text-light transition-colors duration-300">套餐介绍</a>
+          <a href="#" class="hover:text-light transition-colors duration-300">常见问题</a>
+          <a href="#" class="hover:text-light transition-colors duration-300">联系我们</a>
+        </div>
+        <button class="md:hidden text-xl">
+          <i class="fa fa-bars"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- 左侧：用户输入区 -->
+        <div class="lg:col-span-1 bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl">
+          <h2 class="text-xl font-bold text-secondary mb-6 flex items-center">
+            <i class="fa fa-user-circle mr-2"></i>
+            选择人数
+          </h2>
+          
+          <div class="space-y-6">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">全价票 (成人)</label>
+                <div class="flex items-center space-x-2">
+                  <button id="decrease-adult" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
+                    <i class="fa fa-minus"></i>
+                  </button>
+                  <input type="number" id="adult-count" value="0" min="0" class="w-16 h-10 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-primary/50">
+                  <button id="increase-adult" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">优待票</label>
+                <div class="flex items-center space-x-2">
+                  <button id="decrease-concession" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
+                    <i class="fa fa-minus"></i>
+                  </button>
+                  <input type="number" id="concession-count" value="0" min="0" class="w-16 h-10 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-primary/50">
+                  <button id="increase-concession" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">优待人群可购买成人票</p>
+              </div>
+              
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">大学生票</label>
+                <div class="flex items-center space-x-2">
+                  <button id="decrease-student" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
+                    <i class="fa fa-minus"></i>
+                  </button>
+                  <input type="number" id="student-count" value="0" min="0" class="w-16 h-10 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-primary/50">
+                  <button id="increase-student" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
+                <div id="student-ticket-note" class="text-xs text-red-500 mt-1 hidden">
+                  注意：选择贵宾席时大学生需按优待票处理
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">免票 (儿童)</label>
+                <div class="flex items-center space-x-2">
+                  <button id="decrease-free" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
+                    <i class="fa fa-minus"></i>
+                  </button>
+                  <input type="number" id="free-count" value="0" min="0" class="w-16 h-10 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-primary/50">
+                  <button id="increase-free" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="pt-4 border-t border-gray-200">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="need-hotel" class="form-checkbox h-5 w-5 text-primary rounded focus:ring-primary">
+                <span class="text-gray-700 font-medium">需要酒店</span>
+              </label>
+            </div>
+            
+            <div class="pt-4">
+              <label class="block text-gray-700 font-medium mb-2">座位类型</label>
+              <div class="flex space-x-4">
+                <label class="flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" name="seat-type" value="any" checked class="form-radio h-5 w-5 text-primary focus:ring-primary">
+                  <span>任意</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" name="seat-type" value="audience" class="form-radio h-5 w-5 text-primary focus:ring-primary">
+                  <span>观众席</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" name="seat-type" value="vip" class="form-radio h-5 w-5 text-primary focus:ring-primary">
+                  <span>贵宾席</span>
+                </label>
+              </div>
+            </div>
+            
+            <button id="calculate-btn" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 btn-hover">
+              <i class="fa fa-calculator mr-2"></i>
+              计算最优方案
+            </button>
+          </div>
+        </div>
+        
+        <!-- 右侧：结果展示区 -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- 票型说明卡片 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl">
+            <h2 class="text-xl font-bold text-secondary mb-4 flex items-center">
+              <i class="fa fa-info-circle mr-2"></i>
+              票型说明
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-light rounded-lg p-4 border-l-4 border-accent">
+                <h3 class="font-bold text-dark mb-2">全价票</h3>
+                <p class="text-gray-700 text-sm">适用于一般成年人，无优惠</p>
+              </div>
+              <div class="bg-light rounded-lg p-4 border-l-4 border-accent">
+                <h3 class="font-bold text-dark mb-2">优待票</h3>
+                <p class="text-gray-700 text-sm">适用于70岁以上老人、军人、教师、6-18岁儿童、学生、残疾人士</p>
+              </div>
+              <div class="bg-light rounded-lg p-4 border-l-4 border-accent">
+                <h3 class="font-bold text-dark mb-2">大学生票</h3>
+                <p class="text-gray-700 text-sm">适用于全日制本科及专科学生，需学生证（仅观众席可用）</p>
+              </div>
+              <div class="bg-light rounded-lg p-4 border-l-4 border-accent">
+                <h3 class="font-bold text-dark mb-2">免票</h3>
+                <p class="text-gray-700 text-sm">适用于6岁以下儿童，需有成人陪同，不单独安排座位</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 结果展示卡片 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl">
+            <h2 class="text-xl font-bold text-secondary mb-4 flex items-center">
+              <i class="fa fa-ticket mr-2"></i>
+              推荐方案
+            </h2>
+            
+            <div id="result-container" class="space-y-4">
+              <!-- 结果将在这里动态生成 -->
+              <div class="text-center py-12 text-gray-500">
+                <i class="fa fa-calculator text-5xl mb-4 opacity-30"></i>
+                <p class="text-lg">请输入人数并点击"计算最优方案"</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 套餐说明卡片 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl">
+            <h2 class="text-xl font-bold text-secondary mb-4 flex items-center">
+              <i class="fa fa-list-ul mr-2"></i>
+              可选套餐
+            </h2>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">编号</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">套餐内容</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">价格</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">包含酒店</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">1号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">观众席成人票两张</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">499元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">2号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">贵宾席成人票两张</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">559元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">3号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">观众席两大一优待</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">599元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">4号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">贵宾席两大一优待</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">679元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">5号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">观众席两大两优待</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">699元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">6号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">贵宾席两大两优待</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">799元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">7号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">观众席双人票 + 高级双床房</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">798元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">是</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">8号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">观众席两大一优待 + 高级双床房</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">959元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">是</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">9号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">大学生特惠票</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">118元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">10号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">观众席成人票</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">300元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">11号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">贵宾席成人票</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">330元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">12号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">现场购买-观众席成人票</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">320元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">13号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">现场购买-贵宾席成人票</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">350元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">14号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">现场购买-观众席优待票</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">260元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">15号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">现场购买-贵宾席优待票</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">280元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">否</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">16号</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">酒店高级双床房一晚（不含门票）</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">640元</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">是</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- 购票政策卡片 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl">
+            <h2 class="text-xl font-bold text-secondary mb-4 flex items-center">
+              <i class="fa fa-file-text-o mr-2"></i>
+              购票政策
+            </h2>
+            <div class="space-y-4 text-gray-700">
+              <p>1. 优待人群为：70岁以上老年人，军人（含退伍军人），教龄三十年以上教师（要求有证书），6岁至以上18岁以下儿童，全日制本科及专科学生，残疾人士。</p>
+              <p>2. 除直播链接外，也可在窗口进行购买，观众席全价票为320元，贵宾席全价票为350元，也可纳入考虑。</p>
+              <p>3. 儿童身高1.2米以下免票，须有成人陪同，不单独安排座位。</p>
+              <p>4. 大学生票需出示本人有效学生证，仅适用于观众席。</p>
+              <p>5. 所有优惠证件均需在入场时出示原件。</p>
+              <p>6. 优待人群可以购买成人票进入。</p>
+              <p>7. 酒店高级双床房最多可容纳两大或两大一优待。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-secondary text-white py-8">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 class="text-lg font-bold mb-4">关于我们</h3>
+            <p class="text-gray-300">本工具旨在帮助您快速找到最适合的杭州宋城门票套餐组合，让您的旅行更加便捷和经济。</p>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold mb-4">联系我们</h3>
+            <p class="text-gray-300">客服电话：400-123-4567</p>
+            <p class="text-gray-300">邮箱：support@songcheng.com</p>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold mb-4">关注我们</h3>
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                <i class="fa fa-weixin text-xl"></i>
+              </a>
+              <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                <i class="fa fa-weibo text-xl"></i>
+              </a>
+              <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                <i class="fa fa-youtube-play text-xl"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+          <p>© 2025 杭州宋城旅游发展股份有限公司. 保留所有权利.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // 套餐数据
+    const packages = [
+      { id: 1, name: "观众席成人票两张", price: 499, adult: 2, concession: 0, student: 0, hasHotel: false, seatType: "audience", maxPeople: 2 },
+      { id: 2, name: "贵宾席成人票两张", price: 559, adult: 2, concession: 0, student: 0, hasHotel: false, seatType: "vip", maxPeople: 2 },
+      { id: 3, name: "观众席两大一优待", price: 599, adult: 2, concession: 1, student: 0, hasHotel: false, seatType: "audience", maxPeople: 3 },
+      { id: 4, name: "贵宾席两大一优待", price: 679, adult: 2, concession: 1, student: 0, hasHotel: false, seatType: "vip", maxPeople: 3 },
+      { id: 5, name: "观众席两大两优待", price: 699, adult: 2, concession: 2, student: 0, hasHotel: false, seatType: "audience", maxPeople: 4 },
+      { id: 6, name: "贵宾席两大两优待", price: 799, adult: 2, concession: 2, student: 0, hasHotel: false, seatType: "vip", maxPeople: 4 },
+      { id: 7, name: "观众席双人票 + 高级双床房", price: 798, adult: 2, concession: 0, student: 0, hasHotel: true, seatType: "audience", maxPeople: 2 },
+      { id: 8, name: "观众席两大一优待 + 高级双床房", price: 959, adult: 2, concession: 1, student: 0, hasHotel: true, seatType: "audience", maxPeople: 3 },
+      { id: 9, name: "大学生特惠票", price: 118, adult: 0, concession: 0, student: 1, hasHotel: false, seatType: "audience", maxPeople: 1 },
+      { id: 10, name: "观众席成人票", price: 300, adult: 1, concession: 0, student: 0, hasHotel: false, seatType: "audience", maxPeople: 1 },
+      { id: 11, name: "贵宾席成人票", price: 330, adult: 1, concession: 0, student: 0, hasHotel: false, seatType: "vip", maxPeople: 1 },
+      { id: 12, name: "现场购买-观众席成人票", price: 320, adult: 1, concession: 0, student: 0, hasHotel: false, seatType: "audience", maxPeople: 1 },
+      { id: 13, name: "现场购买-贵宾席成人票", price: 350, adult: 1, concession: 0, student: 0, hasHotel: false, seatType: "vip", maxPeople: 1 },
+      { id: 14, name: "现场购买-观众席优待票", price: 260, adult: 0, concession: 1, student: 0, hasHotel: false, seatType: "audience", maxPeople: 1 },
+      { id: 15, name: "现场购买-贵宾席优待票", price: 280, adult: 0, concession: 1, student: 0, hasHotel: false, seatType: "vip", maxPeople: 1 },
+      { id: 16, name: "酒店高级双床房一晚（不含门票）", price: 640, adult: 0, concession: 0, student: 0, hasHotel: true, seatType: "any", maxPeople: 3, requiresTickets: true }
+    ];
+
+    // 单人票数据
+    const singleTickets = [
+      { type: "adult", audiencePrice: 300, vipPrice: 330, onSiteAudiencePrice: 320, onSiteVipPrice: 350 },
+      { type: "concession", audiencePrice: 240, vipPrice: 260, onSiteAudiencePrice: 260, onSiteVipPrice: 280 },
+      { type: "student", audiencePrice: 118, vipPrice: 118 }
+    ];
+
+    // 获取DOM元素
+    const adultCountEl = document.getElementById('adult-count');
+    const concessionCountEl = document.getElementById('concession-count');
+    const studentCountEl = document.getElementById('student-count');
+    const freeCountEl = document.getElementById('free-count');
+    const needHotelEl = document.getElementById('need-hotel');
+    const seatTypeEls = document.querySelectorAll('input[name="seat-type"]');
+    const calculateBtn = document.getElementById('calculate-btn');
+    const resultContainer = document.getElementById('result-container');
+    const studentTicketNote = document.getElementById('student-ticket-note');
+    
+    // 数量增减按钮事件监听
+    document.getElementById('increase-adult').addEventListener('click', () => {
+      adultCountEl.value = parseInt(adultCountEl.value) + 1;
+    });
+    
+    document.getElementById('decrease-adult').addEventListener('click', () => {
+      if (parseInt(adultCountEl.value) > 0) {
+        adultCountEl.value = parseInt(adultCountEl.value) - 1;
+      }
+    });
+    
+    document.getElementById('increase-concession').addEventListener('click', () => {
+      concessionCountEl.value = parseInt(concessionCountEl.value) + 1;
+    });
+    
+    document.getElementById('decrease-concession').addEventListener('click', () => {
+      if (parseInt(concessionCountEl.value) > 0) {
+        concessionCountEl.value = parseInt(concessionCountEl.value) - 1;
+      }
+    });
+    
+    document.getElementById('increase-student').addEventListener('click', () => {
+      studentCountEl.value = parseInt(studentCountEl.value) + 1;
+    });
+    
+    document.getElementById('decrease-student').addEventListener('click', () => {
+      if (parseInt(studentCountEl.value) > 0) {
+        studentCountEl.value = parseInt(studentCountEl.value) - 1;
+      }
+    });
+    
+    document.getElementById('increase-free').addEventListener('click', () => {
+      freeCountEl.value = parseInt(freeCountEl.value) + 1;
+    });
+    
+    document.getElementById('decrease-free').addEventListener('click', () => {
+      if (parseInt(freeCountEl.value) > 0) {
+        freeCountEl.value = parseInt(freeCountEl.value) - 1;
+      }
+    });
+    
+    // 座位类型变化事件
+    seatTypeEls.forEach(el => {
+      el.addEventListener('change', function() {
+        if (this.value === 'vip') {
+          studentTicketNote.classList.remove('hidden');
+        } else {
+          studentTicketNote.classList.add('hidden');
+        }
+      });
+    });
+    
+    // 计算按钮点击事件
+    calculateBtn.addEventListener('click', calculateBestPackages);
+    
+    // 计算最优套餐组合
+    function calculateBestPackages() {
+      // 获取用户输入
+      const adultCount = parseInt(adultCountEl.value);
+      const studentCountInput = parseInt(studentCountEl.value);
+      const needHotel = needHotelEl.checked;
+      
+      // 获取选中的座位类型
+      let seatType = 'any';
+      seatTypeEls.forEach(el => {
+        if (el.checked) {
+          seatType = el.value;
+        }
+      });
+      
+      // 处理贵宾席的大学生票
+      let concessionCount = parseInt(concessionCountEl.value);
+      let studentCount = studentCountInput;
+      
+      if (seatType === 'vip' && studentCountInput > 0) {
+        // 贵宾席下，大学生票需求转为优待票需求
+        concessionCount += studentCountInput;
+        studentCount = 0;
+      }
+      
+      // 过滤符合条件的套餐
+      let filteredPackages = packages.filter(pkg => {
+        // 如果需要酒店，只保留含酒店的套餐；否则排除含酒店的套餐
+        if (needHotel && !pkg.hasHotel) return false;
+        if (!needHotel && pkg.hasHotel) return false;
+        
+        // 座位类型过滤
+        if (seatType !== 'any' && pkg.seatType !== seatType && pkg.seatType !== 'any') return false;
+        
+        // 贵宾席下排除大学生票套餐
+        if (seatType === 'vip' && pkg.id === 9) return false;
+        
+        return true;
+      });
+      
+      // 修正：传递adultCount和concessionCount分别作为成人和优待人数
+      const bestCombinations = findBestCombination(filteredPackages, adultCount, concessionCount, studentCount);
+      
+      // 显示结果
+      displayResults(bestCombinations, seatType, studentCountInput, adultCount, concessionCount);
+    }
+
+    // 进一步优化findBestCombination，优待人群可用成人票或优待票，成人只能用成人票，穷举所有方案选最优
+    function findBestCombination(packages, adultCount, concessionCount, studentCount) {
+      const groupPackages = packages.filter(pkg => pkg.student === 0);
+      const studentPackages = packages.filter(pkg => pkg.student === 1 && pkg.adult === 0 && pkg.concession === 0);
+      const hasHotel = groupPackages.some(pkg => pkg.hasHotel);
+
+      if (!hasHotel) {
+        let best = null;
+        let bestPrice = Infinity;
+        let bestDetail = null;
+        // 合并成人和优待为总需求
+        const totalPeople = adultCount + concessionCount;
+        const maxCounts = groupPackages.map(pkg => Math.ceil(totalPeople / (pkg.adult + pkg.concession || 1)));
+        function dfs(idx, used, sumAdult, sumConcession, sumPrice) {
+          if (sumAdult + sumConcession >= totalPeople && sumAdult >= adultCount) {
+            // 统计所有票
+            let remainAdult = adultCount;
+            let remainConcession = concessionCount;
+            let totalAdultTickets = 0;
+            let totalConcessionTickets = 0;
+            for (let i = 0; i < groupPackages.length; i++) {
+              if (used[i] > 0) {
+                totalAdultTickets += groupPackages[i].adult * used[i];
+                totalConcessionTickets += groupPackages[i].concession * used[i];
+              }
+            }
+            // 成人只能用成人票
+            let needAdult = Math.max(0, remainAdult - totalAdultTickets);
+            // 优待人群剩余用成人票或优待票均可
+            let needConcession = Math.max(0, remainConcession - (totalConcessionTickets + Math.max(0, totalAdultTickets - remainAdult)));
+            let extraPrice = 0;
+            let extraDetail = [];
+            // 成人补票
+            if (needAdult > 0) {
+              const adultTickets = groupPackages.filter(pkg => pkg.adult > 0 && pkg.concession === 0);
+              if (adultTickets.length > 0) {
+                const cheapest = adultTickets.sort((a, b) => a.price / a.adult - b.price / b.adult)[0];
+                extraDetail.push({...cheapest, count: needAdult});
+                extraPrice += cheapest.price * needAdult;
+              }
+            }
+            // 优待补票（可用成人票或优待票）
+            if (needConcession > 0) {
+              // 穷举优待票和成人票的组合
+              let minConcessionPrice = Infinity;
+              let minConcessionDetail = [];
+              for (let c = 0; c <= needConcession; c++) {
+                let useConcession = c;
+                let useAdult = needConcession - c;
+                let price = 0;
+                let detail = [];
+                if (useConcession > 0) {
+                  const concessionTickets = groupPackages.filter(pkg => pkg.concession > 0 && pkg.adult === 0);
+                  if (concessionTickets.length > 0) {
+                    const cheapest = concessionTickets.sort((a, b) => a.price / a.concession - b.price / b.concession)[0];
+                    detail.push({...cheapest, count: useConcession});
+                    price += cheapest.price * useConcession;
+                  } else {
+                    continue;
+                  }
+                }
+                if (useAdult > 0) {
+                  const adultTickets = groupPackages.filter(pkg => pkg.adult > 0 && pkg.concession === 0);
+                  if (adultTickets.length > 0) {
+                    const cheapest = adultTickets.sort((a, b) => a.price / a.adult - b.price / b.adult)[0];
+                    detail.push({...cheapest, count: useAdult});
+                    price += cheapest.price * useAdult;
+                  } else {
+                    continue;
+                  }
+                }
+                if (price < minConcessionPrice) {
+                  minConcessionPrice = price;
+                  minConcessionDetail = detail;
+                }
+              }
+              if (minConcessionDetail.length > 0) {
+                extraDetail = extraDetail.concat(minConcessionDetail);
+                extraPrice += minConcessionPrice;
+              }
+            }
+            // 学生票
+            let studentDetail = [];
+            let studentPrice = 0;
+            if (studentCount > 0 && studentPackages.length > 0) {
+              studentDetail.push({...studentPackages[0], count: studentCount});
+              studentPrice = studentPackages[0].price * studentCount;
+            }
+            let totalPrice = sumPrice + extraPrice + studentPrice;
+            if (totalPrice < bestPrice) {
+              bestPrice = totalPrice;
+              bestDetail = {
+                packages: used.map((c, i) => c > 0 ? {...groupPackages[i], count: c} : null).filter(Boolean).concat(extraDetail, studentDetail),
+                totalPrice: totalPrice,
+                adultCount: Math.max(adultCount, totalAdultTickets + needAdult),
+                concessionCount: Math.max(concessionCount, totalConcessionTickets + needConcession),
+                studentCount: studentCount,
+                note: ''
+              };
+            }
+            return;
+          }
+          if (idx >= groupPackages.length) return;
+          for (let cnt = 0; cnt <= maxCounts[idx]; cnt++) {
+            used[idx] = cnt;
+            dfs(
+              idx + 1,
+              used,
+              sumAdult + groupPackages[idx].adult * cnt,
+              sumConcession + groupPackages[idx].concession * cnt,
+              sumPrice + groupPackages[idx].price * cnt
+            );
+            used[idx] = 0;
+          }
+        }
+        dfs(0, new Array(groupPackages.length).fill(0), 0, 0, 0);
+        return bestDetail ? [bestDetail] : [];
+      }
+
+      // 需要酒店时，分配房间，确保每个人都能入住
+      const hotelPackages = groupPackages.filter(pkg => pkg.hasHotel);
+      const nonHotelPackages = groupPackages.filter(pkg => !pkg.hasHotel);
+      function getRoomCapacity(pkg) {
+        if (pkg.id === 7) return {adult: 2, concession: 0};
+        if (pkg.id === 8) return {adult: 2, concession: 1};
+        if (pkg.id === 16) return {adult: 2, concession: 1};
+        return {adult: pkg.adult, concession: pkg.concession};
+      }
+      let best = null;
+      let bestPrice = Infinity;
+      let bestDetail = null;
+      const maxRooms = Math.ceil((adultCount + concessionCount) / 2);
+      for (let n7 = 0; n7 <= maxRooms; n7++) {
+        for (let n8 = 0; n8 <= maxRooms; n8++) {
+          for (let n16 = 0; n16 <= maxRooms; n16++) {
+            // 统计房间可覆盖的成人和优待
+            let roomAdult = n7 * 2 + n8 * 2 + n16 * 2;
+            let roomConcession = n8 * 1 + n16 * 1;
+            let totalRoom = n7 + n8 + n16;
+            if (roomAdult < adultCount || roomConcession < concessionCount) continue;
+            // 统计总价
+            let price = n7 * 798 + n8 * 959 + n16 * 640;
+            // 还需补门票（优先用房间套餐自带的票）
+            let remainAdult = adultCount;
+            let remainConcession = concessionCount;
+            // 统计房间套餐自带的票
+            let ticketAdult = n7 * 2 + n8 * 2;
+            let ticketConcession = n8 * 1;
+            remainAdult -= ticketAdult;
+            remainConcession -= ticketConcession;
+            // 剩余门票用普通套餐补齐
+            let ticketDetail = [];
+            let sumAdult = ticketAdult;
+            let sumConcession = ticketConcession;
+            let sumPrice = price;
+            // 成人只能用成人票
+            if (remainAdult > 0) {
+              const adultTickets = nonHotelPackages.filter(pkg => pkg.adult > 0 && pkg.concession === 0);
+              if (adultTickets.length > 0) {
+                const cheapest = adultTickets.sort((a, b) => a.price / a.adult - b.price / b.adult)[0];
+                let need = remainAdult;
+                ticketDetail.push({...cheapest, count: need});
+                sumPrice += cheapest.price * need;
+                sumAdult += need;
+              }
+            }
+            // 优待优先用优待票，不足部分用成人票
+            if (remainConcession > 0) {
+              let leftConcession = remainConcession;
+              // 先用优待票
+              const concessionTickets = nonHotelPackages.filter(pkg => pkg.concession > 0 && pkg.adult === 0);
+              if (concessionTickets.length > 0) {
+                const cheapest = concessionTickets.sort((a, b) => a.price / a.concession - b.price / b.concession)[0];
+                let useConcession = Math.min(leftConcession, leftConcession); // 全部用优待票
+                if (useConcession > 0) {
+                  ticketDetail.push({...cheapest, count: useConcession});
+                  sumPrice += cheapest.price * useConcession;
+                  sumConcession += useConcession;
+                  leftConcession -= useConcession;
+                }
+              }
+              // 剩余优待用成人票补
+              if (leftConcession > 0) {
+                const adultTickets = nonHotelPackages.filter(pkg => pkg.adult > 0 && pkg.concession === 0);
+                if (adultTickets.length > 0) {
+                  const cheapest = adultTickets.sort((a, b) => a.price / a.adult - b.price / b.adult)[0];
+                  ticketDetail.push({...cheapest, count: leftConcession});
+                  sumPrice += cheapest.price * leftConcession;
+                  sumAdult += leftConcession;
+                }
+              }
+            }
+            let studentDetail = [];
+            let studentPrice = 0;
+            if (studentCount > 0 && studentPackages.length > 0) {
+              studentDetail.push({...studentPackages[0], count: studentCount});
+              studentPrice = studentPackages[0].price * studentCount;
+            }
+            sumPrice += studentPrice;
+            if (sumPrice < bestPrice) {
+              bestPrice = sumPrice;
+              bestDetail = {
+                packages: [
+                  ...(n7 > 0 ? [{...hotelPackages.find(p => p.id === 7), count: n7}] : []),
+                  ...(n8 > 0 ? [{...hotelPackages.find(p => p.id === 8), count: n8}] : []),
+                  ...(n16 > 0 ? [{...hotelPackages.find(p => p.id === 16), count: n16}] : []),
+                  ...ticketDetail,
+                  ...studentDetail
+                ],
+                totalPrice: sumPrice,
+                adultCount: sumAdult,
+                concessionCount: sumConcession,
+                studentCount: studentCount,
+                note: `共${totalRoom}间房` + (studentCount > 0 ? '，含学生票' : '')
+              };
+            }
+          }
+        }
+      }
+      return bestDetail ? [bestDetail] : [];
+    }
+
+    // 修改displayResults，支持新参数
+    function displayResults(combinations, seatType, studentCountInput, adultCount, concessionCount) {
+      resultContainer.innerHTML = '';
+      
+      if (combinations.length === 0) {
+        resultContainer.innerHTML = `
+          <div class="text-center py-12 text-gray-500">
+            <i class="fa fa-exclamation-circle text-5xl mb-4 opacity-30"></i>
+            <p class="text-lg">没有找到符合条件的套餐组合</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // 只显示最优方案
+      const combination = combinations[0];
+      const isBest = true;
+      const resultCard = document.createElement('div');
+      resultCard.className = `bg-light rounded-xl p-5 shadow-md transform transition-all duration-300 hover:shadow-lg border-2 border-primary`;
+      
+      // 计算超量购买的情况
+      const excessAdult = combination.adultCount - adultCount;
+      const excessConcession = combination.concessionCount - concessionCount;
+      const excessStudent = combination.studentCount - studentCountInput;
+      
+      let excessInfo = '';
+      if (excessAdult > 0 || excessConcession > 0 || excessStudent > 0) {
+        excessInfo = '<div class="mt-2 text-xs text-red-500">注意：此方案包含额外票 <span class="font-medium">';
+        const excessItems = [];
+        if (excessAdult > 0) excessItems.push(`${excessAdult}张成人票`);
+        if (excessConcession > 0) excessItems.push(`${excessConcession}张优待票`);
+        if (excessStudent > 0) excessItems.push(`${excessStudent}张学生票`);
+        excessInfo += excessItems.join('、') + '</span></div>';
+      }
+      
+      // 贵宾席下，显示大学生票已转为优待票的提示
+      let vipStudentNote = '';
+      if (seatType === 'vip' && studentCountInput > 0) {
+        vipStudentNote = `<div class="mt-2 text-xs text-blue-500">已将 ${studentCountInput} 张大学生票转为优待票</div>`;
+      }
+      
+      // 计算酒店房间数
+      const hotelRooms = combination.packages.filter(p => p.hasHotel && p.id === 16).reduce((sum, p) => sum + (p.count || 0), 0);
+      
+      // 酒店提示
+      let hotelNote = '';
+      if (hotelRooms > 0) {
+        hotelNote = `<div class="mt-2 text-xs text-accent">包含 ${hotelRooms} 间高级双床房</div>`;
+      }
+      
+      resultCard.innerHTML = `
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-secondary text-primary">
+              <i class="fa fa-star mr-2"></i>最优方案
+            </h3>
+            <p class="text-gray-600">总价: <span class="font-bold text-lg text-primary">${combination.totalPrice} 元</span></p>
+            ${combination.note ? `<p class="text-xs text-gray-500 mt-1">${combination.note}</p>` : ''}
+          </div>
+          <div class="bg-primary text-white px-3 py-1 rounded-full text-sm">最划算</div>
+        </div>
+        
+        <div class="space-y-3 mb-4">
+          ${combination.packages.map(pkg => `
+            <div class="flex justify-between items-center p-2 rounded-lg bg-primary/5">
+              <div>
+                <span class="font-medium">${pkg.name}${pkg.count ? ` x${pkg.count}` : ''}</span>
+                ${pkg.hasHotel ? '<span class="ml-2 text-xs bg-accent text-white px-2 py-0.5 rounded">含酒店</span>' : ''}
+                ${pkg.id >= 12 ? '<span class="ml-2 text-xs bg-gray-500 text-white px-2 py-0.5 rounded">现场购买</span>' : ''}
+              </div>
+              <span class="font-medium">${pkg.count ? pkg.price * pkg.count : pkg.price} 元</span>
+            </div>
+          `).join('')}
+        </div>
+        
+        ${excessInfo}
+        ${vipStudentNote}
+        ${hotelNote}
+        
+        <div class="border-t border-gray-200 pt-4 mt-4 flex justify-between">
+          <div class="text-sm text-gray-600">
+            覆盖人数: ${combination.adultCount}成人 ${combination.concessionCount}优待 ${combination.studentCount}学生
+          </div>
+          <button class="bg-primary hover:bg-primary/90 text-white font-medium py-1.5 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 btn-hover">
+            <i class="fa fa-shopping-cart mr-1"></i> 立即购买
+          </button>
+        </div>
+      `;
+      
+      resultContainer.appendChild(resultCard);
+    }
+  </script>
+</body>
+</html>
